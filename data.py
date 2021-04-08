@@ -19,7 +19,7 @@ class MyDataset(Dataset):
         return self.length
 
     def __getitem__(self, idx):
-        for i in range
+        
 
         return super().__getitem__(idx)
 
@@ -36,6 +36,7 @@ def create_data(A_num, number, length):
     
 
 
+
 def create_A(number, type='int'):
     if type == 'int':
         A = np.random.randint(number)
@@ -45,4 +46,5 @@ def create_A(number, type='int'):
         A = np.random.random(number)
     print('A is :{}'.format(A))
     return A
+
 
