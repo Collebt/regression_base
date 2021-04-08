@@ -3,23 +3,50 @@ from easydict import EasyDict as edict
 import numpy as np
 
 __C = edict()
-# Consumers can get config by:
-#   from config import cfg
+# j基础设置
 cfg = __C
-
-# Minibatch size
-__C.BATCH_SIZE = 4
-
-# train epoch
-__C.TRAIN = edict()
-__C.TRAIN.EPOCH_ITERS = 20
-
-__C.Q = 1
-__C.NUMBER = 24
-__C.LENGTH = 100
 
 #模块路径
 __C.MODULE = ''
+__C.MODEL_NAME = ''
+__C.DATASET_NAME = ''
+__C.DATASET_FULL_NAME = 'A24'
+
+
+# Minibatch size
+__C.BATCH_SIZE = 4
+__C.DATALOADER_NUM = 2
+
+
+# Training options
+__C.TRAIN = edict()
+
+__C.TRAIN.START_EPOCH = 0
+__C.TRAIN.NUM_EPOCHS = 15
+
+__C.TRAIN.LR = 0.01
+__C.TRAIN.MOMENTUM = 0.9
+__C.TRAIN.LR_DECAY = 0.1
+__C.TRAIN.LR_STEP = [10, 20]
+
+__C.TRAIN.EPOCH_ITERS = 20
+__C.TRAIN.LOSS_FUNC = 'offset'
+
+
+# Evaluation options
+__C.EVAL = edict()
+__C.EVAL.EPOCH = 15
+__C.EVAL.SAMPLES = 30
+
+
+__C.Q = 1
+__C.A = [34,17,8,45,33 ,44, 25, 13, 15,  9, 33, 22 ,16 ,35 ,41, 42, 18, 44, 29, 39, 17 ,26 ,32 , 8]
+__C.NUMBER = 24
+__C.LENGTH = 100
+__C.RANDOM_SEED = 123
+
+
+
 
 
 

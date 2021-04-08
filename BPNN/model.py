@@ -3,33 +3,24 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class MyBpNet(nn.Module):
-    pass
-
-    def __init__(self, in_features, out_features, layers):
-        super(MyBpNet, self).__init__()
+class Net(nn.Module):
+    def __init__(self, in_features, out_features, layers_dim):
+        super(Net, self).__init__()
         self.num_inputs = in_features
         self.num_outputs = out_features
 
-        self.layers = []
-        self.in_layer = nn.Linear(self.num_inputs, layers[0])
-        for i, item in enumerate(layers-2):
-            self.layers.append(nn.Linear(item, layers[i+1]))
-        self.out_layer = nn.Linear(self.layers[-1], out_features)
+        layers = []
+        layers.append(nn.Linear(self.num_inputs, layers_dim[0]))
+        layers.append(nn.ReLU())    
+        for i, item in enumerate(layers_dim[:-1]):
+            layers.append(nn.Linear(item, layers_dim[i+1]))
+            layers.append(nn.ReLU())
+        layers.append(nn.Linear(layers_dim[-1], out_features))
 
-    def forward(self, A, x, norm=True):
-        if norm is True:
-            A = F.normalize(A, p=1, dim=-2)
+        self.MLP = nn.Sequential(*layers)
 
-        x = self.in_layer(x)
-        x = F.relu(x)
-
-        for i, layer in enumerate(self.layers):
-            x = layer(x)
-            x = F.relu(x)
-        x = self.out_layer(x)
-
-        return x
+    def forward(self, x):
+        return self.MLP(x)
         
 
             

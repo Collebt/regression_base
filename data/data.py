@@ -1,28 +1,24 @@
 import numpy as np
 import torch 
 from torch.utils.data import Dataset
-from config import cfg
+from utils.config import cfg
 
 
 class MyDataset(Dataset):
-    def __init__(self, Q, number, length, A=None):
+    def __init__(self, name, sets, Q, number, length, A=None, **args):
         super().__init__()
+        self.name = name
         self.length = length
         self.number = number
+        self.stes = sets
 
         if A == None:
             self.A = create_A(number)#生成A的数值
         else:
-            self.A = A
+            self.A = np.array(A).reshape(-1, 1)
         self.A_idx = create_A_idx(number, length)#自主抽样得到矩阵
         self.D = calculate_D(Q, self.A_idx, self.A)
         self.Q = Q
-
-        train_range = 2 * length // 3
-        val_range = length - train_range
-
-        self.train_idx = np.random.randint(low=train_range, size=length)
-        self.train_idx = np.random.randint(low=train_range, high=val_range, size=length)
 
 
     def __len__(self):

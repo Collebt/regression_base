@@ -1,12 +1,12 @@
 import argparse
-from config import cfg, cfg_from_file, cfg_from_list
+from utils.config import cfg, cfg_from_file, cfg_from_list
 from pathlib import Path
 
 
 def parse_args(description):
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('--cfg', dest='cfg_file', action='append',
-                        help='an optional config file', default=None, type=str)
+                        help='an optional config file', default=['experiments/net1.yaml'], type=str)
     parser.add_argument('--batch', dest='batch_size',
                         help='batch size', default=None, type=int)
     parser.add_argument('--epoch', dest='epoch',

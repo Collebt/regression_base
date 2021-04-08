@@ -1,0 +1,63 @@
+#  model with dataset
+
+MODEL_NAME: mynet
+DATASET_NAME: dummy
+
+MODULE: BPNN.model #使用文件夹中的model.py文件中的模型作为训练模型
+
+#真实A数据
+A: 
+  - 0.83
+  - 0.86
+  - 0.94
+  - 0.96
+  - 0.17
+  - 0.38
+  - 0.61
+  - 0.84
+  - 0.21
+  - 0.44
+  - 0.64
+  - 0.73
+  - 0.19
+  - 0.33
+  - 0.66
+  - 0.81
+  - 0.24
+  - 0.39
+  - 0.63
+  - 0.79
+  - 0.13
+  - 0.49
+  - 0.67
+  - 0.81
+
+
+BATCH_SIZE: 1
+DATALOADER_NUM: 1
+
+RANDOM_SEED: 123
+
+
+# 训练设定
+TRAIN:
+  # start, end epochs
+  START_EPOCH: 0
+  NUM_EPOCHS: 15
+
+  LOSS_FUNC: offset
+
+  # 学习率
+  LR: 2.0e-4
+  MOMENTUM: 0.9
+  LR_DECAY: 0.1
+  LR_STEP:  # (in epochs)
+    - 10
+
+  EPOCH_ITERS: 70  # iterations per epoch
+
+
+# Evaluation settings and PCK metric
+EVAL:
+  EPOCH: 15  # epoch to be tested
+  SAMPLES: 30  # number of tested object
