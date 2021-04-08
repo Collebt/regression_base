@@ -1,29 +1,40 @@
-from numpy.core.arrayprint import _leading_trailing
-from numpy.linalg.linalg import solve
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import os
-import pandas
-
 import numpy as np
 from torch.utils.data import Dataset
 
 
 class MyDataset(Dataset):
-    def __init__(self, number, length, cls=None):
+    def __init__(self, Q, number, length, A=None, cls=None):
         super().__init__()
         self.length = length
         self.number = number
+
+        if A == None:
+            self.A = create_A(number)#生成A的数值
+        else:
+            self.A = A
+        self.A_idx = create_A_idx(number, length)#自主抽样得到矩阵
+        self.D = calculate_D(Q, self.A_idx, self.A)
+        self.Q = Q
+
+        train_range = 2 * length // 3
+        val_range = length - train_range
+
+        self.train_idx = np.random.randint(low=train_range, size=length)
+        self.train_idx = np.random.randint(low=train_range, high=val_range, size=length)
 
 
     def __len__(self):
         return self.length
 
     def __getitem__(self, idx):
-        
+        data = {}
+        data['A_idx'] = self.A_idx[self.train_idx[idx]]
+        data['D'] = self.D[self.train_idx[idx]]
+        data['Q'] = self.Q
 
-        return super().__getitem__(idx)
+        return data
+
+
 
 def create_A_idx(number, length):
     r'''
@@ -54,7 +65,8 @@ def create_A(number, type='int'):
         A = np.random.rand(number, 1)
     else:
         A = np.random.random(size=(number, 1))
-    print('A is :{}'.format(A))
+    #display
+    print('A is :{}'.format(A.T))
     return A
 
 
@@ -85,8 +97,11 @@ if __name__ == '__main__':
     A = create_A(number)#生成A的数值
     A_idx = create_A_idx(number, length)#自主抽样得到矩阵
     D = calculate_D(Q, A_idx, A)
-    print('D is:{}'.format(D))
+    
 
     solved_A = A_solver(Q, A_idx, D)
-    error = np.sum(np.abs(solved_A - A), axis=0)
-    print('error is:{}'.format(error))
+    error = np.sum(np.abs(solved_A - A), axis=0)#测试求解结果和真实A的误差
+
+    #print
+    print('D is:{}'.format(D.T))
+    print('error=|A-solved_A| is:{}'.format(error)) 
