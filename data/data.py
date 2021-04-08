@@ -1,9 +1,11 @@
 import numpy as np
+import torch 
 from torch.utils.data import Dataset
+from config import cfg
 
 
 class MyDataset(Dataset):
-    def __init__(self, Q, number, length, A=None, cls=None):
+    def __init__(self, Q, number, length, A=None):
         super().__init__()
         self.length = length
         self.number = number
@@ -87,6 +89,11 @@ def A_solver(Q, A_idx, D):
     b = D / Q
     AtA_inv = np.linalg.inv(A_idx.T @ A_idx)
     return AtA_inv @ A_idx.T @ b
+
+def get_dataloader(dataset, shuffle=False):
+    return torch.utils.data.DataLoader(
+        dataset, batch_size=cfg.BATCH_SIZE, shuffle=shuffle, num_workers=cfg.DATALOADER_NUM
+    )
 
 
 if __name__ == '__main__':
