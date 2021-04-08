@@ -35,7 +35,7 @@ def create_A_idx(number, length):
     '''
     
     A_idx = np.random.randint(low=0, high=number, size=(length, number))
-    A_idx_matrix = np.zeros(length, number)
+    A_idx_matrix = np.zeros((length, number))
 
     for i, item in enumerate(A_idx_matrix):
         for j in range(number):
@@ -49,11 +49,11 @@ def create_A(number, type='int'):
     仿真生成A的具体数值
     '''
     if type == 'int':
-        A = np.random.randint(low=1, high=50, size=(1, number))
+        A = np.random.randint(low=1, high=50, size=(number, 1))
     elif type == 'uniform':
-        A = np.random.rand(1, number)
+        A = np.random.rand(number, 1)
     else:
-        A = np.random.random(size=(1, number))
+        A = np.random.random(size=(number, 1))
     print('A is :{}'.format(A))
     return A
 
@@ -82,11 +82,11 @@ if __name__ == '__main__':
     length = 100
     Q = 3
 
-    A = create_A(number, type=int)#生成A的数值
-    A_idx = create_A_idx(number, length)
+    A = create_A(number)#生成A的数值
+    A_idx = create_A_idx(number, length)#自主抽样得到矩阵
     D = calculate_D(Q, A_idx, A)
     print('D is:{}'.format(D))
 
     solved_A = A_solver(Q, A_idx, D)
-    error = np.sum(np.abs(solved_A - A), axis=1)
-
+    error = np.sum(np.abs(solved_A - A), axis=0)
+    print('error is:{}'.format(error))
