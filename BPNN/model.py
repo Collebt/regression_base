@@ -22,7 +22,9 @@ class Net(nn.Module):
     def forward(self, x):
         return self.MLP(x)
         
-
+class Encoder(nn.Module):
+    def __init__(self, in_feature, out_feature, layers_dim):
+        super().__init__()
             
 
 class MyReLU(torch.autograd.Function):
