@@ -6,12 +6,13 @@ __C = edict()
 # j基础设置
 cfg = __C
 
-#模块路径
+# 模块路径
 __C.MODULE = ''
 __C.MODEL_NAME = ''
 __C.DATASET_NAME = ''
 __C.DATASET_FULL_NAME = 'A24'
-__C.LAYERS = [32, 64, 32, 24]
+__C.PREDLAYERS = [4, 8, 16, 8, 4]
+__C.OPTIMLAYERS = [16, 14, 8, 4]
 
 # Output path (for checkpoints, running logs and visualization results)
 __C.OUTPUT_PATH = ''
@@ -44,17 +45,13 @@ __C.EVAL.SAMPLES = 30
 
 
 __C.Q = 1
-__C.A = [34,17,8,45,33 ,44, 25, 13, 15,  9, 33, 22 ,16 ,35 ,41, 42, 18, 44, 29, 39, 17 ,26 ,32 , 8]
+__C.A = [34, 17, 8, 45, 33, 44, 25, 13, 15,  9, 33,
+         22, 16, 35, 41, 42, 18, 44, 29, 39, 17, 26, 32, 8]
+__C.A_better = [0.825, 0.866, 0.937, 0.955, 0.173, 0.372, 0.591, 0.833, 0.213, 0.446, 0.632,
+                0.721, 0.199, 0.312, 0.683, 0.807, 0.233, 0.396, 0.622, 0.779, 0.128, 0.483, 0.666, 0.807]
 __C.NUMBER = 24
 __C.LENGTH = 100
 __C.RANDOM_SEED = 123
-
-
-
-
-
-
-
 
 
 def _merge_a_into_b(a, b):
@@ -84,6 +81,7 @@ def _merge_a_into_b(a, b):
                 raise
         else:
             b[k] = v
+
 
 def cfg_from_file(filename):
     '''
