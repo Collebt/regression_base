@@ -1,4 +1,5 @@
 import numpy as np
+from numpy import random
 import torch 
 from torch.utils.data import Dataset
 from utils.config import cfg
@@ -10,15 +11,16 @@ class MyDataset(Dataset):
         self.name = name
         self.length = length
         self.number = number
+        # self.ds = eval(self.name)(**args)
         self.stes = sets
 
         if A == None:
             self.A = create_A(number)#生成A的数值
         else:
-            self.A = np.array(A).reshape(-1, 1)
+            self.A = torch.tensor(A)
         self.A_idx = create_A_idx(number, length)#自主抽样得到矩阵
-        self.D = calculate_D(Q, self.A_idx, self.A)
-        self.Q = Q
+        self.D = torch.tensor(calculate_D(Q, self.A_idx, np.array(A)))
+        self.Q = torch.tensor(Q)
 
 
     def __len__(self):
@@ -26,9 +28,10 @@ class MyDataset(Dataset):
 
     def __getitem__(self, idx):
         data = {}
-        data['A_idx'] = self.A_idx[self.train_idx[idx]]
-        data['D'] = self.D[self.train_idx[idx]]
+        A_idx = self.A_idx[idx].astype(int)
+        data['D'] = self.D[idx]
         data['Q'] = self.Q
+        data['input_A'] = self.A[A_idx]
 
         return data
 

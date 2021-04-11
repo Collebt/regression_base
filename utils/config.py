@@ -11,7 +11,10 @@ __C.MODULE = ''
 __C.MODEL_NAME = ''
 __C.DATASET_NAME = ''
 __C.DATASET_FULL_NAME = 'A24'
+__C.LAYERS = [32, 64, 32, 24]
 
+# Output path (for checkpoints, running logs and visualization results)
+__C.OUTPUT_PATH = ''
 
 # Minibatch size
 __C.BATCH_SIZE = 4
@@ -31,6 +34,7 @@ __C.TRAIN.LR_STEP = [10, 20]
 
 __C.TRAIN.EPOCH_ITERS = 20
 __C.TRAIN.LOSS_FUNC = 'offset'
+__C.STATISTIC_STEP = 5
 
 
 # Evaluation options

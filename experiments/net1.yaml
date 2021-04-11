@@ -6,7 +6,7 @@ DATASET_NAME: dummy
 MODULE: BPNN.model #使用文件夹中的model.py文件中的模型作为训练模型
 
 #真实A数据
-A: 
+A : 
   - 0.83
   - 0.86
   - 0.94
@@ -32,9 +32,13 @@ A:
   - 0.67
   - 0.81
 
-
+LAYERS : 
+  - 32
+  - 64
+  - 32
+  - 24
 BATCH_SIZE: 1
-DATALOADER_NUM: 1
+DATALOADER_NUM: 0
 
 RANDOM_SEED: 123
 
@@ -43,7 +47,7 @@ RANDOM_SEED: 123
 TRAIN:
   # start, end epochs
   START_EPOCH: 0
-  NUM_EPOCHS: 15
+  NUM_EPOCHS: 20
 
   LOSS_FUNC: offset
 
@@ -54,9 +58,9 @@ TRAIN:
   LR_STEP:  # (in epochs)
     - 10
 
-  EPOCH_ITERS: 70  # iterations per epoch
+  EPOCH_ITERS: 200  # iterations per epoch
 
-
+STATISTIC_STEP: 20 #统计的迭代次数
 # Evaluation settings and PCK metric
 EVAL:
   EPOCH: 15  # epoch to be tested
