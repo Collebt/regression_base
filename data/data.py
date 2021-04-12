@@ -1,24 +1,39 @@
 import numpy as np
 from numpy import random
+from numpy.core.records import array
 import torch
 from torch.utils.data import Dataset
 from utils.config import cfg
+import pandas as pd
+import re
 
 
 class MyDataset(Dataset):
-    def __init__(self, name, sets, Q, number, length, A, A_better, **args):
+    def __init__(self, name, sets, Q, number, length, A, A_better, dummy=False):
         super().__init__()
         self.name = name
         self.length = length
         self.number = number
-        # self.ds = eval(self.name)(**args)
-        self.stes = sets
+        self.sets = sets
 
         self.A = torch.tensor(A)
         self.A_better = torch.tensor(A_better)
-        self.A_idx_sum, self.A_idxs = create_A_idx(
-            number, length)  # 自主抽样得到矩阵
-        self.D = torch.tensor(calculate_D(Q, self.A_idx_sum, np.array(A)))
+
+        if dummy is True:
+            # 用于仿真
+            self.A_idx_sum, self.A_idxs = create_A_idx(
+                number, length)  # 自主抽样得到矩阵
+            self.D = torch.tensor(calculate_D(Q, self.A_idx_sum, np.array(A)))
+        else:
+            # xlsx数据
+            if sets == 'train':
+                rows = cfg.DATA.TRAINDATA
+            else:
+                rows = cfg.DATA.EVALDATA
+            self.A_idx_sum, self.A_idxs, self.D = read_data_from_xlsx(
+                path=cfg.DATA.DATAPATH, rows=rows)
+
+        self.A = A_solver(Q, self.A_idx_sum, self.D)
         self.Q = torch.tensor(Q)
 
     def __len__(self):
@@ -41,18 +56,18 @@ class MyDataset(Dataset):
         return data
 
 
-def create_A_idx(number, length):
+def create_A_idx(number, length, file_path=None):
     r'''
     生成随机数据集
     输入：
     A_num: A的总数
     number:数据中包含的A的数量
     length：数据集的样本量
+    file_path: 文件的路径
     '''
-
     A_idx = np.random.randint(low=0, high=number, size=(length, number))
-    A_idx_matrix = np.zeros((length, number))
 
+    A_idx_matrix = np.zeros((length, number))
     for i, item in enumerate(A_idx_matrix):
         for j in range(number):
             item[A_idx[i, j]] += 1
@@ -90,7 +105,8 @@ def A_solver(Q, A_idx, D):
         D：观测值
     '''
     b = D / Q
-    AtA_inv = np.linalg.inv(A_idx.T @ A_idx)
+    A_idx = A_idx.to(torch.float32)
+    AtA_inv = torch.tensor(np.linalg.inv(A_idx.T @ A_idx))
     return AtA_inv @ A_idx.T @ b
 
 
@@ -98,6 +114,35 @@ def get_dataloader(dataset, shuffle=False):
     return torch.utils.data.DataLoader(
         dataset, batch_size=cfg.BATCH_SIZE, shuffle=shuffle, num_workers=cfg.DATALOADER_NUM
     )
+
+
+def read_data_from_xlsx(path: str, rows: list):
+    df = pd.read_excel(path, engine='openpyxl')
+    data = df.loc[0].values
+    #  读取多行数据（这里是第1行和第2行）
+    data = df.loc[rows[0]:rows[1]].values
+
+    length = len(data)
+    D = torch.zeros(length)
+    A_idxs = []
+
+    for i, row in enumerate(data):
+        A_idx = []
+        for j, item in enumerate(row):
+            if type(item) is str:
+                A_name = re.findall('\d', item)
+                if len(A_name) == 2:
+                    A_idx.append(int(A_name[0]) * 4 + int(A_name[1]) - 5)
+        A_idxs.append(A_idx)
+        D[i] = row[25]
+    A_idxs = torch.tensor(A_idxs)
+
+    number = torch.max(A_idxs).to(int) + 1
+    A_idx_matrix = torch.zeros(len(A_idxs), number)
+    for i, item in enumerate(A_idx_matrix):
+        for j in range(number):
+            item[A_idxs[i, j]] += 1
+    return A_idx_matrix, A_idxs, D
 
 
 if __name__ == '__main__':

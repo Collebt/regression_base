@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-def MLP(channels: list, do_bn=True):
+def MLP(channels: list, do_bn=True):  # 多层感知器的生成
     """ Multi-layer perceptron """
     n = len(channels)
     layers = []
@@ -18,55 +18,60 @@ def MLP(channels: list, do_bn=True):
 
 
 class Net(nn.Module):
+    r'''
+    网络骨架框架
+    '''
+
     def __init__(self, A_nums, out_features, optim_layers, predict_layers):
         super(Net, self).__init__()
         self.num_inputs = A_nums
         self.num_outputs = out_features
-        self.optimA = OptimeA(A_nums, optim_layers)
-        self.predict = PredNN(predict_layers)
+        self.optimA = OptimeA(A_nums, optim_layers)  # 实例化优化模块
+        self.predict = PredNN(A_nums, predict_layers)  # 实例化预测模块
         self.output = nn.Linear(A_nums, 1)
 
     def forward(self, x, position, A_nums):
-        # x.shape=(1,24,1)  idx.shape=(1,24,24)
+        # 输入Aij： x.shape=(1,24,1)  Aij的位置索引idx.shape=(1,24,24)
         x_pred = self.optimA(x, position)
-        # x_pred.shape=(1,1,24) , A_num.shape=(1,24,1),
-        pred = self.predict(x_pred, A_nums.transpose(1, 2))  # resnet
-        pred = self.output(x_pred + pred)
+        # x_pred.shape=(1,1,24) , idx.shape=(1,24,24)
+        pred = self.predict(x_pred, position)  # resnet框架
+        pred = self.output(x_pred + pred)  # 预测Q的值
         return pred, x_pred
 
 
 class OptimeA(nn.Module):
-    def __init__(self, A_nums, layers_dim=[16, 14, 8, 4]):
+    '''
+    优化Aij模块
+    '''
+
+    def __init__(self, A_nums, layers=[16, 14, 8, 4]):
         super(OptimeA, self).__init__()
-        self.optimA = MLP([A_nums+1] + layers_dim + [1])
+        self.optimA = MLP([A_nums+1] + layers + [1])
 
     def forward(self, x, poisition):
 
         inputs = [x.transpose(1, 2), poisition.transpose(1, 2)]
-        return self.optimA(torch.cat(inputs, dim=1))  # 输入为第一维方向拼接
+        # 输入为第一维方向拼接
+        return x.transpose(1, 2) + self.optimA(torch.cat(inputs, dim=1))
 
 
 class PredNN(nn.Module):
-    def __init__(self, layers):
+    '''
+    预测Q模块
+    '''
+
+    def __init__(self, A_nums, layers=[16, 14, 8, 4]):
         super().__init__()
-        self.encoder = MLP([2] + layers + [1])
+        self.encoder = MLP([A_nums+1] + layers + [1])
         # nn.init.constant_(self.encoder[-1].bias, 0.0)
 
-    def forward(self, x_pred, numbers):
+    def forward(self, x_pred, poisition):
         '''
-        x_pred in R^24*1, number in R 24*1
+        x_pred.shape=(1 * 1 * 24) , poisition.shape=(1 * 24 * 24)
         '''
-        inputs = [x_pred, numbers]
+        inputs = [x_pred, poisition.transpose(1, 2)]
         # 转换数据类型为float32
-        return self.encoder(torch.cat(inputs, dim=1).to(torch.float32))
-
-# class PredNN(nn.Module):
-#     def __init__(self, in_features, layers_dim):
-#         super(Net, self).__init__()
-#         self.predict = MLP([in_features] + layers_dim + [1])
-
-#     def forward(self, x):
-#         return self.predict(x)
+        return self.encoder(torch.cat(inputs, dim=1))
 
 
 class MyReLU(torch.autograd.Function):

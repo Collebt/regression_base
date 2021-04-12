@@ -5,6 +5,13 @@ import numpy as np
 __C = edict()
 # j基础设置
 cfg = __C
+# data
+__C.DATA = edict()
+__C.DATA.DUMMY = False
+__C.DATA.DATAPATH = 'data/data.xlsx'
+__C.DATA.TRAINDATA = [141, 210]
+__C.DATA.EVALDATA = [211, 240]
+
 
 # 模块路径
 __C.MODULE = ''

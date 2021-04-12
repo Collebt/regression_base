@@ -1,9 +1,19 @@
-#  model with dataset
+#  修改设置
 
 MODEL_NAME: mynet
 DATASET_NAME: dummy
 
+
 MODULE: BPNN.model #使用文件夹中的model.py文件中的模型作为训练模型
+DATA:
+  DUMMY: False
+  DATAPATH: 'data/data.xlsx'
+  TRAINDATA:
+    - 140
+    - 209
+  EVALDATA:
+    - 210
+    - 240
 
 #真实A数据
 A : 
@@ -80,22 +90,21 @@ RANDOM_SEED: 123
 # 训练设定
 TRAIN:
   # start, end epochs
-  START_EPOCH: 0
-  NUM_EPOCHS: 20
+  START_EPOCH: 0 #开始迭代的epoch，不为0则在相应是继续训练， 为0是重新训练
+  NUM_EPOCHS: 10 #迭代数
 
   LOSS_FUNC: offset
 
-  # 学习率
+  # 参数学习率
   LR: 2.0e-4
   MOMENTUM: 0.9
   LR_DECAY: 0.1
-  LR_STEP:  # (in epochs)
+  LR_STEP:  
     - 10
 
-  EPOCH_ITERS: 200  # iterations per epoch
+  EPOCH_ITERS: 70  # 每一个epoch的迭代样本
 
-STATISTIC_STEP: 20 #统计的迭代次数
-# Evaluation settings and PCK metric
+STATISTIC_STEP: 5 #统计的迭代次数
 EVAL:
-  EPOCH: 15  # epoch to be tested
-  SAMPLES: 30  # number of tested object
+  EPOCH: 10  # 
+  SAMPLES: 29  # 测试样本
